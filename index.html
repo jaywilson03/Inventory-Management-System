@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StockWise — Inventory Management</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="auth-view" class="auth-wrap">
+    <section class="auth-card">
+      <div class="brand-mark">SW</div>
+      <p class="eyebrow">INVENTORY MANAGEMENT</p>
+      <h1>Welcome to StockWise</h1>
+      <p class="muted">Sign in to manage your products and stock.</p>
+      <form id="auth-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+        <button id="auth-submit" class="primary full" type="submit">Sign in</button>
+      </form>
+      <p id="auth-message" class="message" role="status"></p>
+      <button id="toggle-auth" class="link-button" type="button">Need an account? Sign up</button>
+      <p class="tiny muted">Your inventory is private to your signed-in account when database policies are configured as instructed.</p>
+    </section>
+  </main>
+
+  <div id="app-view" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark small">SW</span><span>StockWise</span></div>
+      <p class="nav-label">WORKSPACE</p>
+      <nav>
+        <button class="nav-item active" data-page="dashboard">▦ <span>Dashboard</span></button>
+        <button class="nav-item" data-page="products">▤ <span>Products</span></button>
+        <button class="nav-item" data-page="transactions">⇄ <span>Stock movements</span></button>
+        <button class="nav-item" data-page="reports">▥ <span>Reports</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <p class="tiny muted">Signed in as</p>
+        <p id="signed-in-email" class="signed-email"></p>
+        <button id="sign-out" class="nav-item signout">↪ <span>Sign out</span></button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div><p class="eyebrow">INVENTORY WORKSPACE</p><h1 id="page-title">Dashboard</h1></div>
+        <span id="today-label" class="date-label"></span>
+      </header>
+
+      <section id="page-dashboard" class="page">
+        <div class="welcome-row">
+          <div><h2>Inventory overview</h2><p class="muted">A quick look at your current stock.</p></div>
+          <button class="primary" data-go="products">＋ Add product</button>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card"><span class="stat-icon purple">▤</span><p>Total products</p><strong id="stat-products">0</strong><small>Different items in your catalog</small></article>
+          <article class="stat-card"><span class="stat-icon blue">▦</span><p>Total units in stock</p><strong id="stat-units">0</strong><small>Combined quantity across items</small></article>
+          <article class="stat-card"><span class="stat-icon orange">!</span><p>Low-stock items</p><strong id="stat-low">0</strong><small>At or below reorder level</small></article>
+        </div>
+        <section class="panel">
+          <div class="panel-heading"><div><h2>Low-stock alerts</h2><p class="muted">Items that may need replenishment</p></div><button class="secondary" data-go="products">View products</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th>In stock</th><th>Reorder level</th><th>Status</th></tr></thead><tbody id="low-stock-body"></tbody></table></div>
+        </section>
+      </section>
+
+      <section id="page-products" class="page hidden">
+        <div class="welcome-row"><div><h2>Products</h2><p class="muted">Create and maintain your product catalog.</p></div><button id="show-product-form" class="primary">＋ Add product</button></div>
+        <form id="product-form" class="panel form-grid hidden">
+          <div class="panel-heading span-all"><div><h2 id="product-form-title">Add a product</h2><p class="muted">Enter product details below.</p></div></div>
+          <input id="product-id" type="hidden">
+          <div><label for="product-name">Product name *</label><input id="product-name" required maxlength="120" placeholder="e.g. Bond paper"></div>
+          <div><label for="product-sku">SKU / item code *</label><input id="product-sku" required maxlength="60" placeholder="e.g. PAP-A4-001"></div>
+          <div><label for="product-category">Category</label><input id="product-category" maxlength="80" placeholder="e.g. Office supplies"></div>
+          <div><label for="product-price">Unit price (₱)</label><input id="product-price" type="number" min="0" step="0.01" value="0" required></div>
+          <div><label for="product-quantity">Opening quantity</label><input id="product-quantity" type="number" min="0" step="1" value="0" required></div>
+          <div><label for="product-reorder">Reorder level</label><input id="product-reorder" type="number" min="0" step="1" value="5" required></div>
+          <div class="form-actions span-all"><button id="cancel-product" type="button" class="secondary">Cancel</button><button class="primary" type="submit">Save product</button></div>
+        </form>
+        <section class="panel">
+          <div class="toolbar"><input id="product-search" class="search-input" type="search" placeholder="Search name, SKU, or category…"><span id="product-count" class="muted tiny"></span></div>
+          <div class="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Unit price</th><th>In stock</th><th>Status</th><th>Actions</th></tr></thead><tbody id="products-body"></tbody></table></div>
+        </section>
+      </section>
+
+      <section id="page-transactions" class="page hidden">
+        <div class="welcome-row"><div><h2>Stock movements</h2><p class="muted">Record goods received or stock issued.</p></div></div>
+        <form id="movement-form" class="panel form-grid">
+          <div class="panel-heading span-all"><div><h2>Record a movement</h2><p class="muted">Stock changes are recorded in your transaction history.</p></div></div>
+          <div><label for="movement-product">Product *</label><select id="movement-product" required><option value="">Choose a product</option></select></div>
+          <div><label for="movement-type">Movement type *</label><select id="movement-type" required><option value="in">Stock in (received)</option><option value="out">Stock out (issued/sold)</option></select></div>
+          <div><label for="movement-quantity">Quantity *</label><input id="movement-quantity" type="number" min="1" step="1" required placeholder="e.g. 10"></div>
+          <div><label for="movement-note">Note / reference</label><input id="movement-note" maxlength="240" placeholder="e.g. Purchase order #123"></div>
+          <div class="form-actions span-all"><button class="primary" type="submit">Save movement</button></div>
+        </form>
+        <section class="panel">
+          <div class="panel-heading"><div><h2>Recent movements</h2><p class="muted">Latest stock activity</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Quantity</th><th>Note</th></tr></thead><tbody id="transactions-body"></tbody></table></div>
+        </section>
+      </section>
+
+      <section id="page-reports" class="page hidden">
+        <div class="welcome-row"><div><h2>Reports</h2><p class="muted">Review inventory totals and export your data.</p></div><button id="export-report" class="primary">↓ Export CSV</button></div>
+        <div class="stats-grid">
+          <article class="stat-card"><span class="stat-icon purple">₱</span><p>Estimated stock value</p><strong id="report-value">₱0.00</strong><small>Quantity × unit price</small></article>
+          <article class="stat-card"><span class="stat-icon blue">⇄</span><p>Total movements</p><strong id="report-movements">0</strong><small>Recorded stock transactions</small></article>
+          <article class="stat-card"><span class="stat-icon orange">!</span><p>Items needing reorder</p><strong id="report-low">0</strong><small>At or below reorder level</small></article>
+        </div>
+        <section class="panel"><div class="panel-heading"><div><h2>Stock summary</h2><p class="muted">Current quantity and estimated value per product.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th>Quantity</th><th>Unit price</th><th>Estimated value</th></tr></thead><tbody id="report-body"></tbody></table></div>
+        </section>
+      </section>
+      <p id="app-message" class="message" role="status"></p>
+      <footer>StockWise Inventory · Keep your records accurate and up to date.</footer>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
